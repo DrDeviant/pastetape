@@ -1,2 +1,6 @@
-# Pastedive
-📄 Scrape Pastebin archive or monitor real-time for keywords.
+# Pastetape
+📼 Real-time Pastebin archive monitor that looks for specified keywords.
+
+## Requirements
+
+* Python 3
