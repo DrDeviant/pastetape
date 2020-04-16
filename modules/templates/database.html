@@ -33,8 +33,7 @@
         <table class="table table-dark">
             <thead>
                 <tr>
-                    <th>Title</th>
-                    <th>Pastebin URL</th>
+                    <th>Pastebin ID</th>
                     <th>Syntax</th>
                     <th>Upload Date</th>
                     <th>Actions</th>
@@ -43,10 +42,13 @@
             <tbody>
                 {% for paste in pastes %}
                     <tr>
-                        <td>{{ paste[0] }}</td>
-                        <td><a href="https://pastebin.com{{ paste[1] }}">{{ paste[1] }}</a></td>
-                        <td>{{ paste[3] }}</td>
-                        <td>{{ paste[2]}}</td>
+                        <td><a href="https://pastebin.com/{{ paste[0] }}">{{ paste[0] }}</a></td>
+                        <td>{{ paste[2] }}</td>
+                        <td>{{ paste[1] }}</td>
+                        <td>
+                          <a href="/database/paste/{{ paste[0] }}"><img src="{{ url_for('static', filename='file-text.svg') }}"></a>
+                          <a href="/database/delete/{{ paste[0] }}"><img src="{{ url_for('static', filename='delete.svg') }}"></a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

@@ -3,11 +3,11 @@ import sqlite3
 from flask import Flask, redirect, render_template, g
 
 app = Flask(__name__)
-db_name = 'Pastetape.sqlite'
 
-def init_web(port: int, db: str):
-    global db_name
-    db_name = db
+def init_web(monitor, port: int, database: str):
+    global db_name, pm
+    db_name = database
+    pm = monitor
     app.run(host='0.0.0.0', port=8100, debug=True)
 
 # # # # # # #
@@ -26,8 +26,19 @@ def database():
     return render_template('database.html', pastes=cur.fetchall())
 
 @app.route('/database/<keywords>')
-def keywords(keywords):
+def database_search(keywords):
     return render_template('database.html')
+
+@app.route('/database/paste/<id>')
+def database_paste(id):
+    return '<pre>' + pm.get_raw_paste(id) + '</pre>'
+
+@app.route('/database/delete/<id>')
+def database_delete(id):
+    cur = get_db().cursor()
+    cur.execute("DELETE FROM pastes WHERE id = ?", [id])
+
+    return redirect('/database')
 
 @app.route('/logs')
 def logs():

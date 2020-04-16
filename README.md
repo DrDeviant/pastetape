@@ -1,6 +1,6 @@
 <p align="center">
-    <img src="logo.png" width="180">
-    <p align="center">Real-time Pastebin archive monitor that looks for specified keywords.</p>
+    <img src="modules/static/logo.png" width="180">
+    <p align="center">Real-time Pastebin archive scraper that looks for specified keywords.</p>
 </p>
 
 <p align="center">

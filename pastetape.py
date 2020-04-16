@@ -3,11 +3,11 @@ import os
 import argparse
 import sqlite3
 
-from pastetape.monitor import PastebinMonitor
-from pastetape.web import init_web
+from modules.scraper import PastebinScraper
+from modules.web import init_web
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Real-time Pastebin archive monitor that looks for specified keywords.")
+    parser = argparse.ArgumentParser(description="Real-time Pastebin archive scraper that looks for specified keywords.")
     parser.add_argument('-w', '--watch', action='store_true',
                         help="Watch the Pastebin archive for new pastes.")
     parser.add_argument('-r', '--refresh-rate', type=int, default=30,
@@ -24,16 +24,17 @@ if __name__ == '__main__':
 
     if not os.path.exists(args.db):
         conn = sqlite3.connect(args.db)
-        conn.execute("CREATE TABLE pastes(title, link, date, syntax)")
+        conn.execute("CREATE TABLE pastes(id, date, syntax)")
 
-    pm = PastebinMonitor(
+    pm = PastebinScraper(
         watch=args.watch,
         refresh_rate=args.refresh_rate,
         tor=args.tor,
         database=args.db
     )
-    #pm.refresh_archive()
+
+    pm.get_new_pastes()
 
     if args.web_interface:
         print("[!] Launching web interface...")
-        init_web(args.port, args.db)
+        init_web(pm, args.port, args.db)
