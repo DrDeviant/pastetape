@@ -2,6 +2,8 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
+from modules.utilities import log
+
 class PastebinParser:
     @staticmethod
     def get_all_pastes_in_archive(html):
@@ -27,5 +29,5 @@ class PastebinParser:
 
             return pastes_list
         except AttributeError:
-            print("[!] An error occurred while trying to scrape Pastebin!")
+            log("An error occurred while trying to scrape Pastebin!")
             return []

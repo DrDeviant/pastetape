@@ -1,14 +1,21 @@
 import sqlite3
+import logging
+import os
 
 from flask import Flask, redirect, render_template, g
 
 app = Flask(__name__)
 
-def init_web(monitor, port: int, database: str):
+def init_web(monitor, port: int, database: str, debug: bool):
     global db_name, pm
     db_name = database
     pm = monitor
-    app.run(host='0.0.0.0', port=8100, debug=True)
+
+    if not debug:
+        logging.getLogger('werkzeug').setLevel(logging.ERROR)
+        os.environ['WERKZEUG_RUN_MAIN'] = 'true'
+
+    app.run(host='0.0.0.0', port=port, debug=debug)
 
 # # # # # # #
 #   Routes   #
@@ -38,11 +45,22 @@ def database_delete(id):
     cur = get_db().cursor()
     cur.execute("DELETE FROM pastes WHERE id = ?", [id])
 
+    get_db().commit()
     return redirect('/database')
 
-@app.route('/logs')
-def logs():
-    return render_template('logs.html')
+@app.route('/clean')
+def clean():
+    cur = get_db().cursor()
+    cur.execute("SELECT * FROM pastes")
+
+    for paste in cur.fetchall():
+        unavailable = pm.check_if_unavailable(paste[0])
+
+        if unavailable:
+            cur.execute("DELETE FROM pastes WHERE id = ?", [paste[0]])
+    
+    get_db().commit()
+    return redirect('/database')
 
 # # # # # # #
 #  Database  #

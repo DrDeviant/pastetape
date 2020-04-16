@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="modules/static/logo.png" width="180">
+    <img src="logo.png" width="180">
     <p align="center">Real-time Pastebin archive scraper that looks for specified keywords.</p>
 </p>
 
