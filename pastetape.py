@@ -4,6 +4,7 @@ import argparse
 import sqlite3
 
 from pastetape.monitor import PastebinMonitor
+from pastetape.web import init_web
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Real-time Pastebin archive monitor that looks for specified keywords.")
@@ -17,6 +18,8 @@ if __name__ == '__main__':
                         help="Path to database file.")
     parser.add_argument('-i', '--web-interface', action='store_true',
                         help="Launch the web interface.")
+    parser.add_argument('-p', '--port', type=int, default=8080,
+                        help="Port for the web interface.")
     args = parser.parse_args()
 
     if not os.path.exists(args.db):
@@ -29,4 +32,8 @@ if __name__ == '__main__':
         tor=args.tor,
         database=args.db
     )
-    pm.refresh_archive()
+    #pm.refresh_archive()
+
+    if args.web_interface:
+        print("[!] Launching web interface...")
+        init_web(args.port, args.db)

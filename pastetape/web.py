@@ -1,12 +1,50 @@
-from flask import Flask, flash, redirect, render_template, request, session, send_from_directory
+import sqlite3
 
-app = Flask(__name__, static_url_path="/static")
+from flask import Flask, redirect, render_template, g
 
-@app.route("/")
+app = Flask(__name__)
+db_name = 'Pastetape.sqlite'
+
+def init_web(port: int, db: str):
+    global db_name
+    db_name = db
+    app.run(host='0.0.0.0', port=8100, debug=True)
+
+# # # # # # #
+#   Routes   #
+# # # # # # #
+
+@app.route('/')
 def index():
-    pass
+    return redirect('/database')
 
-@app.errorhandler(404)
-def page_not_found(e):
-    flash("Not found! Please check the URL and try again.")
-    return redirect("/")
+@app.route('/database')
+def database():
+    cur = get_db().cursor()
+    cur.execute("SELECT * FROM pastes ORDER BY date DESC")
+
+    return render_template('database.html', pastes=cur.fetchall())
+
+@app.route('/database/<keywords>')
+def keywords(keywords):
+    return render_template('database.html')
+
+@app.route('/logs')
+def logs():
+    return render_template('logs.html')
+
+# # # # # # #
+#  Database  #
+# # # # # # #
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(db_name)
+    return db
+
+@app.teardown_appcontext
+def close_db(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
