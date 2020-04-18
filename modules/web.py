@@ -1,8 +1,9 @@
 import sqlite3
 import logging
 import os
+from math import ceil
 
-from flask import Flask, redirect, render_template, g
+from flask import Flask, redirect, render_template, g, flash, request
 
 app = Flask(__name__)
 
@@ -15,6 +16,7 @@ def init_web(monitor, port: int, database: str, debug: bool):
         logging.getLogger('werkzeug').setLevel(logging.ERROR)
         os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 
+    app.secret_key = os.urandom(16)
     app.run(host='0.0.0.0', port=port, debug=debug)
 
 # # # # # # #
@@ -23,18 +25,37 @@ def init_web(monitor, port: int, database: str, debug: bool):
 
 @app.route('/')
 def index():
-    return redirect('/database')
+    return redirect('/database/1')
 
 @app.route('/database')
 def database():
+    return redirect('/database/1')
+
+@app.route('/database/<page>')
+def database_page(page):
+    offset = (int(page) - 1) * 50
+    cur = get_db().cursor()
+
+    cur.execute("SELECT * FROM pastes")
+    pages_left = ceil(len(cur.fetchall()) / 50)
+
+    cur.execute("SELECT * FROM pastes ORDER BY date DESC LIMIT 50 OFFSET ?", [offset])
+
+    return render_template('database.html', pastes=cur.fetchall(), cur_page=int(page), pages_left=pages_left, offset=offset)
+
+@app.route('/database/search', methods=["POST"])
+def database_search():
     cur = get_db().cursor()
     cur.execute("SELECT * FROM pastes ORDER BY date DESC")
 
-    return render_template('database.html', pastes=cur.fetchall())
+    keywords = request.form['keywords'].split()
+    pastes = []
 
-@app.route('/database/<keywords>')
-def database_search(keywords):
-    return render_template('database.html')
+    for paste in cur.fetchall():
+        if pm.check_if_keywords(paste[0], keywords):
+            pastes.append(paste)
+
+    return render_template('database.html', pastes=pastes, cur_page=0, pages_left=0, offset=0)
 
 @app.route('/database/paste/<id>')
 def database_paste(id):
@@ -46,6 +67,7 @@ def database_delete(id):
     cur.execute("DELETE FROM pastes WHERE id = ?", [id])
 
     get_db().commit()
+    flash("Paste deleted!")
     return redirect('/database')
 
 @app.route('/clean')
@@ -60,6 +82,7 @@ def clean():
             cur.execute("DELETE FROM pastes WHERE id = ?", [paste[0]])
     
     get_db().commit()
+    flash("Finished the clean up!")
     return redirect('/database')
 
 # # # # # # #

@@ -35,7 +35,8 @@ if __name__ == '__main__':
         database=args.db
     )
 
-    pm.get_new_pastes()
+    if args.mode == "once":
+        pm.get_new_pastes()
 
     if args.web_interface:
         log(f"Launching web interface on port: {args.port}")

@@ -9,7 +9,7 @@ class PastebinParser:
     def get_all_pastes_in_archive(html):
         """
         @param: html (str) - raw HTML scraped from Pastebin archive
-        @return: pastes_list (list) - list containing dicts with details from every paste from supplied archive page
+        @return: list containing dicts with details from every paste from supplied archive page
         """
         try:
             soup = BeautifulSoup(html, 'html.parser')
@@ -31,3 +31,16 @@ class PastebinParser:
         except AttributeError:
             log("An error occurred while trying to scrape Pastebin!")
             return []
+
+    @staticmethod
+    def find_keyword_in_paste(html, keywords):
+        """
+        @param: html (str) - raw HTML scraped from Pastebin archive
+        @param: keyword (list of str) - words to search for in paste
+        @return: first keyword (str) which was found in paste or None
+        """
+        for keyword in keywords:
+            if keyword in html:
+                return keyword
+
+        return None

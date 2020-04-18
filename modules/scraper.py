@@ -14,6 +14,7 @@ class PastebinScraper:
         self.db_cur = self.db_conn.cursor()
 
         self.session = requests.session()
+        self.session.cookies.update({'cf_clearance': '8cb67966b325ea9febc40f5e0e6dd1cbb85f12b9-1587039877-0-250'})
         self.session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101 Firefox/68.0'})
         if tor:
             self.session.proxies = {
@@ -25,6 +26,7 @@ class PastebinScraper:
 
     def get_new_pastes(self):
         r = self.session.get(self.ARCHIVE_URL)
+        print(r.text)
         pastes = PastebinParser.get_all_pastes_in_archive(r.text)
 
         for paste in pastes:
@@ -41,6 +43,18 @@ class PastebinScraper:
         r = self.session.get(self.RAW_URL + id)
         
         return r.text
+
+    def check_if_keywords(self, id, keywords):
+        r = self.session.get(self.RAW_URL + id)
+
+        is_found = False
+        found = PastebinParser.find_keyword_in_paste(r.text, keywords)
+        if found:
+            log(f"Found '{found}' in paste with Pastebin ID: {id}")
+            is_found = True
+
+        return is_found
+
 
     def check_if_unavailable(self, id):
         r = self.session.get(self.RAW_URL + id)
