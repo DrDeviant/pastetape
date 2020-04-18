@@ -9,24 +9,22 @@ class PastebinScraper:
     RAW_URL = 'https://pastebin.com/raw/'
     ARCHIVE_URL = 'https://pastebin.com/archive'
 
-    def __init__(self, tor: bool = False, refresh_rate: int = 30, database: str = 'pastetape.sqlite'):
+    def __init__(self, tor: bool = False, cf_clearance: str = "", database: str = 'pastetape.sqlite'):
         self.db_conn = sqlite3.connect(database)
         self.db_cur = self.db_conn.cursor()
 
         self.session = requests.session()
-        self.session.cookies.update({'cf_clearance': '8cb67966b325ea9febc40f5e0e6dd1cbb85f12b9-1587039877-0-250'})
         self.session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101 Firefox/68.0'})
+        if cf_clearance:
+            self.session.cookies.update({'cf_clearance': cf_clearance})
         if tor:
             self.session.proxies = {
                 'http': 'socks5h://localhost:9050',
                 'https': 'socks5h://localhost:9050'
             }
 
-        self.refresh_rate = refresh_rate
-
     def get_new_pastes(self):
         r = self.session.get(self.ARCHIVE_URL)
-        print(r.text)
         pastes = PastebinParser.get_all_pastes_in_archive(r.text)
 
         for paste in pastes:

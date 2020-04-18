@@ -1,6 +1,6 @@
 <p align="center">
     <img src="logo.png" width="180">
-    <p align="center">Real-time Pastebin archive scraper that looks for specified keywords.</p>
+    <p align="center">Pastebin archive scraper with web interface for searching through pastes.</p>
 </p>
 
 <p align="center">
@@ -12,14 +12,24 @@
 ## Requirements
 * Python 3
 
+### Python dependencies
+* Flask
+* Beautiful Soup 4
+* requests
+* requests[socks]
+
 ```bash
 $ pip install -r requirements.txt
 ```
 
 ## Usage
+In order to use TOR with Pastetape, ensure that the TOR service is working at port 9050.
 
 ```bash
-$ python pastetape.py
+$ python pastetape.py -h
+
+usage: pastetape.py [-h] [-s] [-t] [--cf-clearance CF_CLEARANCE] [-i]    
+                    [--db DB] [--port PORT] [--debug]
 ```
 
 ## License
