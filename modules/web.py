@@ -52,14 +52,17 @@ def database_search():
     pastes = []
 
     for paste in cur.fetchall():
-        if pm.check_if_keywords(paste[0], keywords):
-            pastes.append(paste)
+        for keyword in keywords:
+            if keyword in paste[1]:
+                pastes.append(paste)
 
     return render_template('database.html', pastes=pastes, cur_page=0, pages_left=0, offset=0)
 
 @app.route('/database/paste/<id>')
 def database_paste(id):
-    return '<pre>' + pm.get_raw_paste(id) + '</pre>'
+    cur = get_db().cursor()
+    cur.execute("SELECT content FROM pastes WHERE id = ?", [id])
+    return '<pre>' + cur.fetchone()[0] + '</pre>'
 
 @app.route('/database/delete/<id>')
 def database_delete(id):
@@ -68,21 +71,6 @@ def database_delete(id):
 
     get_db().commit()
     flash("Paste deleted!")
-    return redirect('/database')
-
-@app.route('/clean')
-def clean():
-    cur = get_db().cursor()
-    cur.execute("SELECT * FROM pastes")
-
-    for paste in cur.fetchall():
-        unavailable = pm.check_if_unavailable(paste[0])
-
-        if unavailable:
-            cur.execute("DELETE FROM pastes WHERE id = ?", [paste[0]])
-    
-    get_db().commit()
-    flash("Finished the clean up!")
     return redirect('/database')
 
 # # # # # # #

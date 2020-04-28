@@ -32,8 +32,9 @@ class PastebinScraper:
             
             if not self.db_cur.fetchone():
                 log(f"New paste fetched with Pastebin ID: {paste['id']}")
-                self.db_cur.execute("INSERT INTO pastes VALUES (?, ?, ?)",
-                                    (paste['id'], paste['date'], paste['syntax']))
+                content = self.get_raw_paste(paste['id'])
+                self.db_cur.execute("INSERT INTO pastes VALUES (?, ?, ?, ?)",
+                                    (paste['id'], content, paste['date'], paste['syntax']))
 
         self.db_conn.commit()
 
@@ -41,25 +42,13 @@ class PastebinScraper:
         r = self.session.get(self.RAW_URL + id)
         
         return r.text
-
-    def check_if_keywords(self, id, keywords):
-        r = self.session.get(self.RAW_URL + id)
-
-        is_found = False
-        found = PastebinParser.find_keyword_in_paste(r.text, keywords)
-        if found:
-            log(f"Found '{found}' in paste with Pastebin ID: {id}")
-            is_found = True
-
-        return is_found
-
-
-    def check_if_unavailable(self, id):
-        r = self.session.get(self.RAW_URL + id)
-
-        if r.status_code == 404:
-            log(f"Found unavailable paste with Pastebin ID: {id}")
-            return True
-        else:
-            return False
+    
+    #def check_if_unavailable(self, id):
+    #    r = self.session.get(self.RAW_URL + id)
+    #
+    #    if r.status_code == 404:
+    #        log(f"Found unavailable paste with Pastebin ID: {id}")
+    #        return True
+    #    else:
+    #        return False
         

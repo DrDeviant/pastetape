@@ -27,11 +27,12 @@ if __name__ == '__main__':
 
     if not os.path.exists(args.db):
         conn = sqlite3.connect(args.db)
-        conn.execute("CREATE TABLE pastes(id, date, syntax)")
+        conn.execute("CREATE TABLE pastes(id, content, date, syntax)")
 
     pm = PastebinScraper(
         tor=args.tor,
-        database=args.db
+        database=args.db,
+        cf_clearance=args.cf_clearance
     )
 
     if args.scrape:
